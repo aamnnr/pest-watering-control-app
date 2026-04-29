@@ -1,0 +1,7 @@
+Analyzing pestmist_control...                                   
+
+   info - 'services' is deprecated and shouldn't be used. removed. no replacement - lib\core\services\ble_service.dart:31:35 - deprecated_member_use
+   info - Use 'const' with the constructor to improve performance - lib\features\history\widgets\battery_chart.dart:28:29 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - lib\features\history\widgets\battery_chart.dart:29:31 - prefer_const_constructors
+
+3 issues found. (ran in 3.2s)

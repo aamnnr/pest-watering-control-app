@@ -16,8 +16,7 @@ class SplashNoDevice extends SplashState {
 
 class SplashHasDevice extends SplashState {
   final DeviceModel device;
-  final MqttService mqttService;
-  const SplashHasDevice(this.device, this.mqttService);
+  const SplashHasDevice(this.device);
   @override
-  List<Object?> get props => [device, mqttService];
+  List<Object?> get props => [device];
 }

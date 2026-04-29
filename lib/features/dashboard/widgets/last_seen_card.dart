@@ -3,7 +3,13 @@ import 'package:intl/intl.dart';
 
 class LastSeenCard extends StatelessWidget {
   final DateTime lastSeen;
-  const LastSeenCard({super.key, required this.lastSeen});
+  final bool isOffline;
+
+  const LastSeenCard({
+    super.key,
+    required this.lastSeen,
+    this.isOffline = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -11,15 +17,15 @@ class LastSeenCard extends StatelessWidget {
     String statusText;
     Color statusColor;
     
-    if (difference.inMinutes < 5) {
-      statusText = 'Online';
-      statusColor = Colors.green;
-    } else if (difference.inMinutes < 15) {
-      statusText = 'Terakhir ${difference.inMinutes} menit lalu';
-      statusColor = Colors.orange;
-    } else {
+    if (isOffline) {
       statusText = 'Offline - ${DateFormat('HH:mm, dd MMM').format(lastSeen)}';
       statusColor = Colors.red;
+    } else if (difference.inMinutes < 5) {
+      statusText = 'Online';
+      statusColor = Colors.green;
+    } else {
+      statusText = 'Terakhir ${difference.inMinutes} menit lalu';
+      statusColor = Colors.orange;
     }
     
     return Card(

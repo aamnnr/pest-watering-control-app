@@ -1,23 +1,24 @@
 import 'package:hive/hive.dart';
+import 'package:equatable/equatable.dart';
 
 part 'device_model.g.dart';
 
 @HiveType(typeId: 1)
-class DeviceModel {
+class DeviceModel extends Equatable {
   @HiveField(0)
-  String deviceId;
+  final String deviceId;
   @HiveField(1)
-  String name;
+  final String name;
   @HiveField(2)
-  DateTime lastSeen;
+  final DateTime lastSeen;
   @HiveField(3)
-  int lastBattery;
+  final int lastBattery;
   @HiveField(4)
-  int uvStartHour;
+  final int uvStartHour;
   @HiveField(5)
-  int uvEndHour;
+  final int uvEndHour;
 
-  DeviceModel({
+  const DeviceModel({
     required this.deviceId,
     required this.name,
     required this.lastSeen,
@@ -25,4 +26,42 @@ class DeviceModel {
     this.uvStartHour = 18,
     this.uvEndHour = 23,
   });
+
+  bool get hasCustomSchedule => uvStartHour != uvEndHour;
+
+  String get scheduleLabel {
+    if (uvStartHour >= uvEndHour) {
+      return 'Jadwal belum valid';
+    }
+    return '${uvStartHour.toString().padLeft(2, '0')}:00 - '
+        '${uvEndHour.toString().padLeft(2, '0')}:00';
+  }
+
+  DeviceModel copyWith({
+    String? deviceId,
+    String? name,
+    DateTime? lastSeen,
+    int? lastBattery,
+    int? uvStartHour,
+    int? uvEndHour,
+  }) {
+    return DeviceModel(
+      deviceId: deviceId ?? this.deviceId,
+      name: name ?? this.name,
+      lastSeen: lastSeen ?? this.lastSeen,
+      lastBattery: lastBattery ?? this.lastBattery,
+      uvStartHour: uvStartHour ?? this.uvStartHour,
+      uvEndHour: uvEndHour ?? this.uvEndHour,
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+        deviceId,
+        name,
+        lastSeen,
+        lastBattery,
+        uvStartHour,
+        uvEndHour,
+      ];
 }

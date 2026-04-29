@@ -7,7 +7,7 @@ final logger = Logger(
     lineLength: 80,
     colors: true,
     printEmojis: true,
-    printTime: true,
+    dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
   ),
 );
 
@@ -15,17 +15,17 @@ class AppLogger {
   static void debug(String message) {
     logger.d(message);
   }
-  
+
   static void info(String message) {
     logger.i(message);
   }
-  
+
   static void warning(String message) {
     logger.w(message);
   }
-  
+
   static void error(String message, [dynamic error, StackTrace? stackTrace]) {
-    // Beberapa versi logger menerima error dan stackTrace sebagai positional arguments
+    // Logger 2.7.0 uses named parameters for error and stackTrace
     if (error != null && stackTrace != null) {
       logger.e(message, error: error, stackTrace: stackTrace);
     } else if (error != null) {
@@ -34,12 +34,18 @@ class AppLogger {
       logger.e(message);
     }
   }
-  
-  static void verbose(String message) {
-    logger.v(message);
+
+  static void trace(String message) {
+    logger.t(message);
   }
-  
-  static void wtf(String message) {
-    logger.wtf(message);
+
+  static void fatal(String message, [dynamic error, StackTrace? stackTrace]) {
+    if (error != null && stackTrace != null) {
+      logger.f(message, error: error, stackTrace: stackTrace);
+    } else if (error != null) {
+      logger.f(message, error: error);
+    } else {
+      logger.f(message);
+    }
   }
 }

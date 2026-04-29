@@ -5,8 +5,7 @@ import 'splash_cubit.dart';
 import '../setup/device_scan_screen.dart';
 import '../dashboard/dashboard_screen.dart';
 import '../../core/services/storage_service.dart';
-import '../../models/device_model.dart';
-import '../../core/services/mqtt_service.dart';
+import '../../core/constants/app_constants.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -14,7 +13,8 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => SplashCubit(GetIt.instance<StorageService>())..checkDevice(),
+      create: (_) =>
+          SplashCubit(GetIt.instance<StorageService>())..checkDevice(),
       child: BlocListener<SplashCubit, SplashState>(
         listener: (context, state) {
           if (state is SplashNoDevice) {
@@ -31,16 +31,35 @@ class SplashScreen extends StatelessWidget {
             );
           }
         },
-        child: const Scaffold(
+        child: Scaffold(
           body: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                FlutterLogo(size: 100),
+                Container(
+                  width: 104,
+                  height: 104,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  child: Icon(
+                    Icons.sensors,
+                    size: 52,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
                 SizedBox(height: 24),
                 CircularProgressIndicator(),
                 SizedBox(height: 16),
-                Text('TaniSolution', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                Text(AppConstants.appName,
+                    style:
+                        TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                SizedBox(height: 8),
+                Text(
+                  'Memuat perangkat dan konfigurasi MQTT...',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ],
             ),
           ),

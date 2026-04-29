@@ -4,7 +4,7 @@ import '../../../models/telemetry_model.dart';
 
 class BatteryChart extends StatelessWidget {
   final List<TelemetryModel> data;
-  const BatteryChart({required this.data});
+  const BatteryChart({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -18,17 +18,22 @@ class BatteryChart extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Grafik Baterai (7 hari)', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            SizedBox(height: 16),
+            const Text('Grafik Baterai (7 hari)',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
             SizedBox(
               height: 200,
               child: LineChart(
                 LineChartData(
-                  gridData: FlGridData(show: true),
-                  titlesData: FlTitlesData(show: true),
+                  gridData: const FlGridData(show: true),
+                  titlesData: const FlTitlesData(show: true),
                   borderData: FlBorderData(show: true),
                   lineBarsData: [
-                    LineChartBarData(spots: spots, isCurved: true, color: Colors.green, barWidth: 3),
+                    LineChartBarData(
+                        spots: spots,
+                        isCurved: true,
+                        color: Colors.green,
+                        barWidth: 3),
                   ],
                 ),
               ),

@@ -1,109 +1,77 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:fl_chart/fl_chart.dart';
-import '../../core/services/storage_service.dart';
-import '../../models/telemetry_model.dart';
 
-class HistoryScreen extends StatefulWidget {
-  const HistoryScreen({super.key});
+import '../../core/services/storage_service.dart';
+import '../../models/device_model.dart';
+import 'history_cubit.dart';
+import 'widgets/battery_chart.dart';
+import 'widgets/event_log_list.dart';
+
+class HistoryScreen extends StatelessWidget {
+  final DeviceModel device;
+
+  const HistoryScreen({super.key, required this.device});
 
   @override
-  State<HistoryScreen> createState() => _HistoryScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => HistoryCubit(
+        GetIt.instance<StorageService>(),
+        deviceId: device.deviceId,
+      )..loadHistory(),
+      child: const _HistoryView(),
+    );
+  }
 }
 
-class _HistoryScreenState extends State<HistoryScreen> {
-  List<TelemetryModel> _history = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadHistory();
-  }
-
-  void _loadHistory() {
-    final storage = GetIt.instance<StorageService>();
-    setState(() {
-      _history = storage.getTelemetryHistory();
-    });
-  }
+class _HistoryView extends StatelessWidget {
+  const _HistoryView();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat & Grafik'),
-        actions: [IconButton(icon: const Icon(Icons.refresh), onPressed: _loadHistory)],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => context.read<HistoryCubit>().loadHistory(),
+          ),
+        ],
       ),
-      body: _history.isEmpty
-          ? const Center(child: Text('Belum ada data. Tunggu perangkat mengirim telemetry.'))
-          : ListView(
+      body: BlocBuilder<HistoryCubit, HistoryState>(
+        builder: (context, state) {
+          if (state is HistoryLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is HistoryLoaded) {
+            if (state.telemetry.isEmpty && state.logs.isEmpty) {
+              return const Center(
+                child: Text(
+                  'Belum ada data. Tunggu perangkat mengirim telemetry.',
+                ),
+              );
+            }
+
+            return ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Grafik Baterai', style: TextStyle(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          height: 200,
-                          child: LineChart(
-                            LineChartData(
-                              gridData: const FlGridData(show: true),
-                              titlesData: const FlTitlesData(show: true),
-                              borderData: FlBorderData(show: true),
-                              lineBarsData: [
-                                LineChartBarData(
-                                  spots: _getSpots(),
-                                  isCurved: true,
-                                  color: Colors.green,
-                                  barWidth: 3,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                BatteryChart(data: state.telemetry),
                 const SizedBox(height: 16),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Log Aktivitas', style: TextStyle(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 8),
-                        ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: _history.length > 50 ? 50 : _history.length,
-                          itemBuilder: (_, i) {
-                            final data = _history[_history.length - 1 - i];
-                            return ListTile(
-                              leading: Icon(data.uv == 1 ? Icons.lightbulb : Icons.lightbulb_outline,
-                                  color: data.uv == 1 ? Colors.amber : Colors.grey),
-                              title: Text('Baterai: ${data.bat}% | UV: ${data.uv == 1 ? "ON" : "OFF"}'),
-                              subtitle: Text(data.time ?? 'Waktu tidak tercatat'),
-                              dense: true,
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                EventLogList(logs: state.logs),
               ],
-            ),
-    );
-  }
+            );
+          }
 
-  List<FlSpot> _getSpots() {
-    if (_history.isEmpty) return [];
-    return List.generate(_history.length, (i) => FlSpot(i.toDouble(), _history[i].bat.toDouble()));
+          if (state is HistoryError) {
+            return Center(child: Text(state.message));
+          }
+
+          return const SizedBox.shrink();
+        },
+      ),
+    );
   }
 }

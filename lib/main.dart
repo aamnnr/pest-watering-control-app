@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'core/constants/app_constants.dart';
+import 'core/services/ble_provisioning_service.dart';
 import 'core/services/storage_service.dart';
 import 'core/services/notification_service.dart';
 import 'core/theme/theme_cubit.dart';
@@ -15,6 +17,9 @@ void main() async {
   final storage = StorageService();
   await storage.init();
   getIt.registerSingleton<StorageService>(storage);
+  getIt.registerLazySingleton<BleProvisioningService>(
+    BleProvisioningService.new,
+  );
   runApp(const MyApp());
 }
 
@@ -36,7 +41,7 @@ class MyApp extends StatelessWidget {
             currentTheme = AppTheme.lightTheme;
           }
           return MaterialApp(
-            title: 'TaniSolution',
+            title: AppConstants.appName,
             theme: currentTheme,
             debugShowCheckedModeBanner: false,
             home: const SplashScreen(),

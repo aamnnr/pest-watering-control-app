@@ -22,13 +22,15 @@ class TelemetryModelAdapter extends TypeAdapter<TelemetryModel> {
       isNight: fields[1] as bool,
       uv: fields[2] as int,
       time: fields[3] as String?,
+      pump: fields[4] as int? ?? 0,
+      deviceId: fields[5] as String? ?? '',
     );
   }
 
   @override
   void write(BinaryWriter writer, TelemetryModel obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.bat)
       ..writeByte(1)
@@ -36,7 +38,11 @@ class TelemetryModelAdapter extends TypeAdapter<TelemetryModel> {
       ..writeByte(2)
       ..write(obj.uv)
       ..writeByte(3)
-      ..write(obj.time);
+      ..write(obj.time)
+      ..writeByte(4)
+      ..write(obj.pump)
+      ..writeByte(5)
+      ..write(obj.deviceId);
   }
 
   @override
@@ -46,21 +52,3 @@ class TelemetryModelAdapter extends TypeAdapter<TelemetryModel> {
   bool operator ==(Object other) =>
       identical(this, other) || other is TelemetryModelAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }
-
-// **************************************************************************
-// JsonSerializableGenerator
-// **************************************************************************
-
-TelemetryModel _$TelemetryModelFromJson(Map<String, dynamic> json) => TelemetryModel(
-      bat: json['bat'] as int,
-      isNight: json['is_night'] as bool,
-      uv: json['uv'] as int,
-      time: json['time'] as String?,
-    );
-
-Map<String, dynamic> _$TelemetryModelToJson(TelemetryModel instance) => <String, dynamic>{
-      'bat': instance.bat,
-      'is_night': instance.isNight,
-      'uv': instance.uv,
-      'time': instance.time,
-    };

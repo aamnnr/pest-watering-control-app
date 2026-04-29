@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../dashboard/dashboard_cubit.dart';
 
 class ScheduleScreen extends StatefulWidget {
@@ -32,6 +33,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             child: Column(
               children: [
                 const Text('Atur jam UV menyala setiap hari'),
+                const SizedBox(height: 8),
+                Text(
+                  'Firmware hanya mendukung jadwal dalam hari yang sama. Jam selesai harus lebih besar dari jam mulai.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                  textAlign: TextAlign.center,
+                ),
                 const SizedBox(height: 24),
                 Row(
                   children: [
@@ -60,10 +67,18 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: () {
-                    context.read<DashboardCubit>().updateSchedule(startHour, endHour);
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Jadwal terkirim')));
-                    Navigator.pop(context);
+                  onPressed: () async {
+                    final cubit = context.read<DashboardCubit>();
+                    final scaffoldMessenger = ScaffoldMessenger.of(context);
+                    final navigator = Navigator.of(context);
+                    final result = await cubit.updateSchedule(startHour, endHour);
+                    if (!mounted) return;
+                    scaffoldMessenger.showSnackBar(
+                      SnackBar(content: Text(result.message)),
+                    );
+                    if (result.isSuccess) {
+                      navigator.pop();
+                    }
                   },
                   child: const Text('Simpan Jadwal'),
                 ),
